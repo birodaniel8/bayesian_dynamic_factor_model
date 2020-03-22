@@ -5,7 +5,7 @@ function estimated_model = estimate_BDFM(y, k, priors, model, ndraw, burnin, dis
 if nargin == 6, display = true; end
 if nargin >= 6
     if model == "NLM"
-        estimated_model = BDFM_nlm(y, k, priors);
+        estimated_model = BDFM_fm(y, k, priors);
         estimated_model.estimate(ndraw, burnin, display);
     else
         estimated_model = -1;

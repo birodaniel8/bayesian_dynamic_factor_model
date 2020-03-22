@@ -3,7 +3,7 @@ x = bfmdgp();
 %% Run normal linear model estimation:
 k = 3;
 priors = struct([]);
-model = BDFM_nlm(x, k, priors);
+model = BDFM_fm(x, k, priors);
 n_draw = 1500;
 n_burnin = 1000;
 model.estimate(n_draw, n_burnin);
@@ -24,7 +24,7 @@ load('currency_data.mat')
 %% Run normal linear model estimation:
 k = 2;
 priors = struct([]);
-model = BDFM_nlm(x, k, priors);
+model = BDFM_fm(x, k, priors);
 n_draw = 1500;
 n_burnin = 1000;
 model.estimate(n_draw, n_burnin);
