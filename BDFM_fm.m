@@ -1,4 +1,4 @@
-classdef BDFM_nlm < BDFM
+classdef BDFM_fm < BDFM
     %BDFM_nlm Summary of this class goes here
     %   Detailed explanation goes here
     
@@ -8,7 +8,7 @@ classdef BDFM_nlm < BDFM
     end
     
     methods
-        function obj = BDFM_nlm(y, k, priors)
+        function obj = BDFM_fm(y, k, priors)
             %BDFM_nlm Construct an instance of this class
             obj@BDFM(y, k);
             if isfield(priors,'beta'), obj.beta_prior = priors.beta; else obj.beta_prior = 0; end  % prior mean of the beta coefficients in the normal model
