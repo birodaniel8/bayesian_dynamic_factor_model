@@ -15,7 +15,7 @@ function v = sampling_degree_of_freedom(lambda, v_previous, v_prior, mh_sigma_sq
 
 %------------- BEGIN CODE --------------
 
-m = size(lambda,2);
+[N, m] = size(lambda);
 if all(size(v_previous) == [1, 1]), v_previous = repmat(v_previous, m, 1); end % convert v_previous to (m x 1)
 if all(size(v_prior) == [1, 1]), v_prior = repmat(v_prior, m, 1); end % convert v_prior to (m x 1)
 if all(size(mh_sigma_squared) == [1, 1]), mh_sigma_squared = repmat(mh_sigma_squared, m, 1); end % convert mh_sigma_squared to (m x 1)
@@ -23,8 +23,19 @@ if all(size(mh_sigma_squared) == [1, 1]), mh_sigma_squared = repmat(mh_sigma_squ
 v = zeros(m, 1);
 for i=1:m
     v_proposed = v_previous(i) + sqrt(mh_sigma_squared(i)) * randn(1);
-    alpha = min(v_posterior_density(v_proposed,v_prior(i),lambda(:,i))/v_posterior_density(v_previous(i),v_prior(i),lambda(:,i)),1);
-    if rand() < alpha
+
+    eta =1/v_prior + 1/2 *sum(-log(lambda(:,i)) + lambda(:,i));
+    
+    if v_proposed>0
+        lpostcan = .5*N*v_proposed*log(.5*v_proposed) -N*gammaln(.5*v_proposed)-eta*v_proposed;
+        lpostdraw = .5*N*v_previous(i)*log(.5*v_previous(i)) -N*gammaln(.5*v_previous(i))-eta*v_previous(i);
+        accprob = exp(lpostcan-lpostdraw);
+     else
+        accprob=0;
+     end
+    
+    alpha = accprob;
+    if rand < alpha
         v(i) = v_proposed;
     else
         v(i) = v_previous(i);
@@ -33,12 +44,3 @@ end
 
 %------------- END OF CODE --------------
 end
-
-%------- BEGIN AUXILIARY FUNCTION -------
-function x = v_posterior_density(v,v_prior,lambda)
-%v_POSTERIOR_DENSITY: p(v|v_prior,N,lambda)
-    [N,~] = size(lambda);
-    eta = 1/v_prior + 1/2 * sum(log(1./lambda) + lambda);
-    x = (v/2)^(N*v/2) * gamma(v/2)^(-N) * exp(-eta*v);
-end
-%-------- END AUXILIARY FUNCTION --------
