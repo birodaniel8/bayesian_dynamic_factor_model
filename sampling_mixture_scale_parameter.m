@@ -24,13 +24,3 @@ for i=1:m
 end
 %------------- END OF CODE --------------
 end
-% 
-% 
-%     %Draw from lamda conditional on rest
-%     errors=y-x*bdraw;
-%     dof=vldraw+1;
-%     for ii = 1:n
-%        temp=(hdraw*errors(ii,1)^2 + vldraw);
-%        lamdraw(ii,1)=gamm_rnd(1,1,.5*dof,.5*temp);
-%     pdraw(ii,ii)=sqrt(lamdraw(ii,1));
-%     end
