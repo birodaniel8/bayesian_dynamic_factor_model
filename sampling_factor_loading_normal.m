@@ -7,6 +7,7 @@ function beta = sampling_factor_loading_normal(y, factor, beta_prior, V_prior, e
 %    beta_prior: (double or m x k) mean of the prior distribution
 %    V_prior: (double or m x k) variance of the prior distribution
 %    error_covariance: (m x m) covariance matrix of the observation equation
+%                   or (m x T) diagonal elements of the generalized error covariance matrix
 %
 % Outputs:
 %    beta: (m x k) sampled factor loadings (lower triangle)
@@ -18,21 +19,31 @@ function beta = sampling_factor_loading_normal(y, factor, beta_prior, V_prior, e
 
 %------------- BEGIN CODE --------------
 
-m = size(y, 2);
+[T, m] = size(y);
 k = size(factor, 2);
 beta = zeros(m, k);
 
-if all(size(beta_prior) == [1, 1]), beta_prior = repmat(beta_prior, m, k); end % convert beta_prior to (k x 1)
-if all(size(V_prior) == [1, 1]), V_prior = repmat(V_prior, m, k); end % convert V_prior to (k x k)
+if all(size(beta_prior) == [1, 1]), beta_prior = repmat(beta_prior, m, k); end % convert beta_prior to (m x k)
+if all(size(V_prior) == [1, 1]), V_prior = repmat(V_prior, m, k); end % convert V_prior to (m x k)
 
-
-for i = 1:m
-    if i <= k
-        beta(i, 1:i) = sampling_beta(factor(:, 1:i), y(:, i), beta_prior(i, 1:i)', diag(V_prior(i, 1:i)), error_covariance(i, i), 'last_truncated', true);
-    else
-        beta(i, :) = sampling_beta(factor, y(:, i), beta_prior(i, :)', diag(V_prior(i, :)), error_covariance(i, i));
+if all(size(error_covariance) == [m, T])
+    % sampling with generalizer error covariance matrix:
+    for i = 1:m
+        if i <= k
+            beta(i, 1:i) = sampling_beta(factor(:, 1:i), y(:, i), beta_prior(i, 1:i)', diag(V_prior(i, 1:i)), diag(error_covariance(i, :)), 'last_truncated', true);
+        else
+            beta(i, :) = sampling_beta(factor, y(:, i), beta_prior(i, :)', diag(V_prior(i, :)), diag(error_covariance(i, :)));
+        end
     end
-end
+else
+    % sampling with constant sigma^2 error covariance:
+    for i = 1:m
+        if i <= k
+            beta(i, 1:i) = sampling_beta(factor(:, 1:i), y(:, i), beta_prior(i, 1:i)', diag(V_prior(i, 1:i)), error_covariance(i, i), 'last_truncated', true);
+        else
+            beta(i, :) = sampling_beta(factor, y(:, i), beta_prior(i, :)', diag(V_prior(i, :)), error_covariance(i, i));
+        end
+    end
 
 %------------- END OF CODE --------------
 end
