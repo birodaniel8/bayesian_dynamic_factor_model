@@ -23,18 +23,16 @@ if all(size(mh_variance) == [1, 1]), mh_variance = repmat(mh_variance, m, 1); en
 v = zeros(m, 1);
 for i=1:m
     v_proposed = v_previous(i) + sqrt(mh_variance(i)) * randn(1);
-
-    eta =1/v_prior + 1/2 *sum(-log(lambda(:,i)) + lambda(:,i));
     
+    eta =1/v_prior + 1/2 *sum(-log(lambda(:,i)) + lambda(:,i));
     if v_proposed>0
-        lpostcan = .5*N*v_proposed*log(.5*v_proposed) -N*gammaln(.5*v_proposed)-eta*v_proposed;
-        lpostdraw = .5*N*v_previous(i)*log(.5*v_previous(i)) -N*gammaln(.5*v_previous(i))-eta*v_previous(i);
-        accprob = exp(lpostcan-lpostdraw);
+        l_post_proposed = 0.5*N*v_proposed*log(.5*v_proposed) -N*gammaln(0.5*v_proposed)-eta*v_proposed;
+        l_post_sampled = 0.5*N*v_previous(i)*log(.5*v_previous(i)) -N*gammaln(0.5*v_previous(i))-eta*v_previous(i);
+        alpha = exp(l_post_proposed-l_post_sampled);
      else
-        accprob=0;
+        alpha=0;
      end
     
-    alpha = accprob;
     if rand < alpha
         v(i) = v_proposed;
     else
