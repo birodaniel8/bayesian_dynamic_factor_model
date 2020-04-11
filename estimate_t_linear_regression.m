@@ -27,10 +27,12 @@ function [sampled_beta, sampled_sigma_squared, sampled_df] = estimate_t_linear_r
     % sampling:
     for i = 1:ndraw
         if display && mod(i,100) == 0, disp(i); end
-        beta = sampling_beta(sqrt(lambda) .* x, sqrt(lambda) .* y, beta_prior, V_prior, sigma_squared);   % sampling beta coefficients
-        sigma_squared = sampling_sigma_squared(y-x*beta, gamma_prior, delta_prior);  % sampling error variance
+        x_star = sqrt(lambda) .* x;
+        y_star = sqrt(lambda) .* y;
+        beta = sampling_beta(x_star, y_star, beta_prior, V_prior, sigma_squared);   % sampling beta coefficients
+        sigma_squared = sampling_sigma_squared(y_star - x_star * beta, gamma_prior, delta_prior);  % sampling error variance
         df = sampling_degree_of_freedom(lambda, df, v_prior, mh_variance);  % sampling degree of freedom
-        lambda = ()  % sampling lambda
+        lambda = sampling_mixture_scale_parameter(y - x * beta, sigma_squared, df);  % sampling lambda
         if i > burnin
             sampled_beta(:, i-burnin) = beta;
             sampled_sigma_squared(:, i-burnin) = sigma_squared;
