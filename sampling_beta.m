@@ -6,7 +6,7 @@ function beta = sampling_beta(x, y, beta_prior, V_prior, sigma_squared, varargin
 %    y: (T x 1) depentent variabe
 %    beta_prior: (double or k x 1) mean of the prior distribution
 %    V_prior: (double or k x k) covariance of the prior distribution
-%    sigma_sqruared: (double) specified sigma^2 of the regression
+%    sigma_sqruared: (double or T x T) specified sigma^2 or covariance matrix of the regression
 %    stationary (optional): (bool) sampling betas with stationary constraints
 %    last_truncated (optional): (bool) left truncate the last values of the sampled beta at the truncation values
 %    truncation_value (optional): (double) applied truncation values of the last element
@@ -35,8 +35,13 @@ k = size(x, 2);
 if all(size(beta_prior) == [1, 1]), beta_prior = repmat(beta_prior, k, 1); end % convert beta_prior to (k x 1)
 if all(size(V_prior) == [1, 1]), V_prior = eye(k) * V_prior; end % convert V_prior to (k x k)
 
-V_posterior = inv(inv(V_prior)+sigma_squared^-1*(x' * x)); % posterior V
-beta_posterior = V_posterior * (inv(V_prior) * beta_prior + sigma_squared^-1 * x' * y); % posterior beta
+if all(size(sigma_squared) == [1, 1])
+    V_posterior = inv(inv(V_prior)+sigma_squared^-1*(x' * x)); % posterior V
+    beta_posterior = V_posterior * (inv(V_prior) * beta_prior + sigma_squared^-1 * x' * y); % posterior beta
+else
+    V_posterior = inv(inv(V_prior)+(x' * inv(sigma_squared) * x)); % posterior V
+    beta_posterior = V_posterior * (inv(V_prior) * beta_prior + x' * inv(sigma_squared) * y); % posterior beta
+end
 
 if ~stationary
     if ~last_truncated

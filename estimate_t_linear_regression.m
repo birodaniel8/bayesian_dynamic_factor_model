@@ -5,7 +5,8 @@ function [sampled_beta, sampled_sigma_squared, sampled_df] = estimate_t_linear_r
     if isfield(priors,'V'), V_prior = priors.V; else V_prior = 1; end  % prior variance of the beta coefficients in the normal model
     if isfield(priors,'gamma'), gamma_prior = priors.gamma; else gamma_prior = 3/2; end  % prior confidence in the variance in the normal model
     if isfield(priors,'delta'), delta_prior = priors.delta; else delta_prior = 0.01/2; end  % prior mean of the variance in the normal model
-    if isfield(priors,'v'), v_prior = priors.v; else v_prior = 30; end  % prior mean of the variance in the normal model
+    if isfield(priors,'v'), v_prior = priors.v; else v_prior = 30; end  % prior mean of the degree of freedom parameter
+    if isfield(priors,'mh_variance'), mh_variance = priors.mh_variance; else mh_variance = 0.25; end  % prior mean of the variance in the normal model
 
     [T, m] = size(x);
     if constant
@@ -21,16 +22,19 @@ function [sampled_beta, sampled_sigma_squared, sampled_df] = estimate_t_linear_r
     % initial values:
     sigma_squared = delta_prior;
     lambda = ones(T,1);
+    df = v_prior;
 
     % sampling:
     for i = 1:ndraw
         if display && mod(i,100) == 0, disp(i); end
-        beta = sampling_beta(x, y, beta_prior, V_prior, sigma_squared);   % sampling beta coefficients
+        beta = sampling_beta(sqrt(lambda) .* x, sqrt(lambda) .* y, beta_prior, V_prior, sigma_squared);   % sampling beta coefficients
         sigma_squared = sampling_sigma_squared(y-x*beta, gamma_prior, delta_prior);  % sampling error variance
-        
+        df = sampling_degree_of_freedom(lambda, df, v_prior, mh_variance);  % sampling degree of freedom
+        lambda = ()  % sampling lambda
         if i > burnin
             sampled_beta(:, i-burnin) = beta;
             sampled_sigma_squared(:, i-burnin) = sigma_squared;
+            sampled_df(:, i-burnin) = df;            
         end
     end
 end
