@@ -3,7 +3,7 @@ function beta = sampling_beta(x, y, beta_prior, V_prior, sigma_squared, varargin
 %
 % Inputs:
 %    x: (T x k) explanatory variables
-%    y: (T x 1) depentent variabe
+%    y: (T x 1) dependent variable
 %    beta_prior: (double or k x 1) mean of the prior distribution
 %    V_prior: (double or k x k) covariance of the prior distribution
 %    sigma_sqruared: (double or T x T) specified sigma^2 or covariance matrix of the regression
@@ -30,7 +30,7 @@ stationary = p.Results.stationary;
 last_truncated = p.Results.last_truncated;
 truncation_value = p.Results.truncation_value;
 %--------------------
-
+    
 k = size(x, 2);
 if all(size(beta_prior) == [1, 1]), beta_prior = repmat(beta_prior, k, 1); end % convert beta_prior to (k x 1)
 if all(size(V_prior) == [1, 1]), V_prior = eye(k) * V_prior; end % convert V_prior to (k x k)

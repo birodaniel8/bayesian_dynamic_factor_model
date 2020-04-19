@@ -19,5 +19,5 @@ if nargin == 0
     Sigma = diag([0.02; 0.19; 0.36; 0.02; 0.02; 0.19; 0.19; 0.36; 0.36]);
 end
 
-f = randn(T, K);
+f = cumsum(randn(T, K));
 X = f * L' + randn(T, N) * chol(Sigma);

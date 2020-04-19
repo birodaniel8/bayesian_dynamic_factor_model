@@ -17,5 +17,5 @@ v_posterior = size(x,1)/2 + gamma_prior;
 d_posterior = diag(x'*x)/2 + delta_prior;
 v = 1 ./ gamrnd(v_posterior, 1./d_posterior);
 
-%------------- END OF CODE --------------
+%------------- END OF CODE --------------   
 end
